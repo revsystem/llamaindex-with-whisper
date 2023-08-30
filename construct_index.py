@@ -56,7 +56,7 @@ def get_service_context() -> ServiceContext:
         separator=" ",
         chunk_size=256,
         chunk_overlap=20,
-        backup_separators=["\n\n", "\n", "。", "。 ", "、", "、", " ", ""],
+        backup_separators=["\n\n", "\n", "。", "。 ", "、", "、 ", ""],
         tokenizer=tiktoken.encoding_for_model("gpt-3.5-turbo").encode,
     )
 

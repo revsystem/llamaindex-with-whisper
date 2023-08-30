@@ -91,7 +91,7 @@ The main libraries installed are as follows:
 ```console
 pip freeze | grep -e "openai" -e "pydub" -e "llama-index" -e "sentence_transformers" -e "tiktoken"
 
-llama-index==0.8.11.post3
+llama-index==0.8.12
 openai==0.27.9
 pydub==0.25.1
 tiktoken==0.4.0
@@ -111,3 +111,4 @@ export OPENAI_API_KEY= 'YOUR_OPENAI_API_KEY'
 - [Converting Speech to Text with the OpenAI Whisper API](https://www.datacamp.com/tutorial/converting-speech-to-text-with-the-openAI-whisper-API)
 - [Speech to text](https://platform.openai.com/docs/guides/speech-to-text)
 - [Llamaindex を用いた社内文書の ChatGPT QA ツールをチューニングする](https://recruit.gmo.jp/engineer/jisedai/blog/llamaindex-chatgpt-tuning/)
+- [OpenAIのWhisper APIとGPT-4を使って､音声データから文字起こしと要約を作成する](https://qiita.com/revsystem/items/37aa4f066b63a3bb0379)

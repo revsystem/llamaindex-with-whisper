@@ -44,19 +44,16 @@ def show_response(response: RESPONSE_TYPE, user_input: str):
     print("==========\n")
 
     node_list = response.source_nodes
-    node_count = len(node_list)
-    logging.debug("node_count: %s", node_count)
-
-    for node in node_list:
-        print(f"{node.node.id_=}, {node.score=}")
 
     for node in node_list:
         node_dict = node.dict()
         print("----------")
 
-        if node.score is not None:
-            print("Cosine Similarity:")
-            print(f"{node_dict['score']}\n")
+        print("Node ID:")
+        print(f"{node_dict['node']['id_']}")
+
+        print("Cosine Similarity:")
+        print(f"{node_dict['score']}\n")
 
         print("Reference text:")
         print(f"{node_dict['node']['text']}")
