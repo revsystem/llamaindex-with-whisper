@@ -12,19 +12,13 @@ python3 ./transcriptin.py -f ./sample.mp4
 
 Then, transcripted documents will be in ./data/documents
 
-### Vectorize the transcribed data
-
-```console
-python3 ./transcriptin.py -i
-```
-
-Then, index data will be in ./data/indexes/index.json
-
 ### Execute query
 
 ```console
 python3 ./transcriptin.py
 ```
+
+Then, index data will be in ./data/indexes/index.json if you don't have any indexes.
 
 ```console
 Input query: <INPUT_YOUR_QUERY_ABOUT_TRANSCRIPTED_TEXT>
@@ -32,7 +26,7 @@ Input query: <INPUT_YOUR_QUERY_ABOUT_TRANSCRIPTED_TEXT>
 
 ### Response
 
-We can get a streaming answer like the ChatGPT.
+We can get a answer.
 
 ```console
 ==========
@@ -91,8 +85,8 @@ The main libraries installed are as follows:
 ```console
 pip freeze | grep -e "openai" -e "pydub" -e "llama-index" -e "sentence_transformers" -e "tiktoken"
 
-llama-index==0.8.12
-openai==0.27.9
+llama-index==0.8.22
+openai==0.28.0
 pydub==0.25.1
 tiktoken==0.4.0
 ```
@@ -107,8 +101,11 @@ export OPENAI_API_KEY= 'YOUR_OPENAI_API_KEY'
 
 ## Reference
 
-- [OpenAIのWhisper APIの25MB制限に合うような調整を検討する](https://dev.classmethod.jp/articles/openai-api-whisper-about-data-limit/)
-- [Converting Speech to Text with the OpenAI Whisper API](https://www.datacamp.com/tutorial/converting-speech-to-text-with-the-openAI-whisper-API)
-- [Speech to text](https://platform.openai.com/docs/guides/speech-to-text)
-- [Llamaindex を用いた社内文書の ChatGPT QA ツールをチューニングする](https://recruit.gmo.jp/engineer/jisedai/blog/llamaindex-chatgpt-tuning/)
-- [OpenAIのWhisper APIとGPT-4を使って､音声データから文字起こしと要約を作成する](https://qiita.com/revsystem/items/37aa4f066b63a3bb0379)
+- [Router Query Engine](https://gpt-index.readthedocs.io/en/latest/examples/query_engine/RouterQueryEngine.html)
+- [Experimenting LlamaIndex RouterQueryEngine with Document Management](https://betterprogramming.pub/experimenting-llamaindex-routerqueryengine-with-document-management-19b17f2e3a32)
+- [LlamaIndex の RouterQueryEngine を試す](https://note.com/npaka/n/n0a068497ac96)
+
+## Licensing
+
+This software includes the work that is distributed in the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+Original source code is [wenqiglantz/DevSecOpsKB-LlamaIndex-LangChain-OpenAI](https://github.com/wenqiglantz/DevSecOpsKB-LlamaIndex-LangChain-OpenAI/tree/main/DevSecOpsKB-router-query-engine-document-management)

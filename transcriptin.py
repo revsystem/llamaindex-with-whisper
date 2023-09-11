@@ -9,15 +9,15 @@ import sys
 import tempfile
 
 import openai
-from llama_index import set_global_service_context
 from llama_index.response.schema import RESPONSE_TYPE
 from pydub import AudioSegment
 
 from constants import DEFAULT_TARGET_FILE_SIZE, FOLDERPATH_DOCUMENTS
-from construct_index import construct_index, get_service_context, query_with_index
+from construct_index import load_variables, query_with_index, save_variables
 
-logging.disable()
-logging.basicConfig(stream=sys.stdout, level=logging.INFO, force=True)
+# logging.disable()
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True)
+logging.getLogger().handlers = []
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 TRANSCRIPT_PROMPT = """
@@ -40,24 +40,24 @@ def show_response(response: RESPONSE_TYPE, user_input: str):
     print("Query:")
     print(user_input)
     print("Answer:")
-    print(response.print_response_stream())
+    print(response)
     print("==========\n")
 
-    node_list = response.source_nodes
+    # node_list = response.source_nodes
 
-    for node in node_list:
-        node_dict = node.dict()
-        print("----------")
+    # for node in node_list:
+    #     node_dict = node.dict()
+    #     print("----------")
 
-        print("Node ID:")
-        print(f"{node_dict['node']['id_']}")
+    #     print("Node ID:")
+    #     print(f"{node_dict['node']['id_']}")
 
-        print("Cosine Similarity:")
-        print(f"{node_dict['score']}\n")
+    #     print("Cosine Similarity:")
+    #     print(f"{node_dict['score']}\n")
 
-        print("Reference text:")
-        print(f"{node_dict['node']['text']}")
-        print("----------\n")
+    #     print("Reference text:")
+    #     print(f"{node_dict['node']['text']}")
+    #     print("----------\n")
 
 
 # Extract the audio source, and write it into a file.
@@ -166,8 +166,6 @@ def main():
     """
     Extract audio from video file and transcribe.
         $ python3 ./transcriptin.py -f ./sample.mp4
-    Vectorize the transcribed data.
-        $ python3 ./transcriptin.py -i
     Execute query.
         $ python3 ./transcriptin.py
     """
@@ -180,31 +178,22 @@ def main():
         "--file",
         help="original movie file path.",
     )
-    limit_group.add_argument(
-        "-i",
-        "--index",
-        help="create the vector index with transcripted text.",
-        action="store_true",
-    )
 
     args = parser.parse_args()
-
-    service_context = get_service_context()
-    set_global_service_context(service_context)
 
     if args.file:
         original_file_path = pathlib.Path(args.file)
         extract_audio_from_media(original_file_path)
         sys.exit()
-    elif args.index:
-        construct_index()
-        sys.exit()
 
     while True:
         user_input = input("Input query:")
         if user_input == "exit":
+            # save_variables()
             break
 
+        # load the variables at app startup
+        load_variables()
         response = query_with_index(user_input)
         show_response(response, user_input)
 
