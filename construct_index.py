@@ -1,6 +1,7 @@
 import logging
 import os
 
+import nest_asyncio
 import tiktoken
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
@@ -11,12 +12,12 @@ from llama_index import (
     ServiceContext,
     SimpleDirectoryReader,
     StorageContext,
-    SummaryIndex,
     VectorStoreIndex,
     get_response_synthesizer,
     set_global_service_context,
 )
 from llama_index.callbacks import CallbackManager, LlamaDebugHandler
+from llama_index.indices.document_summary import DocumentSummaryIndex
 from llama_index.indices.loading import load_index_from_storage
 
 # from llama_index.llms import OpenAI
@@ -35,10 +36,13 @@ from constants import FILEPATH_CACHE_INDEX, FOLDERPATH_DOCUMENTS, VARIABLES_FILE
 from prompt_tmpl import (
     CHAT_TEXT_QA_PROMPT,
     CHAT_TREE_SUMMARIZE_PROMPT,
+    DEFAULT_CHOICE_SELECT_PROMPT,
     SINGLE_PYD_SELECT_PROMPT_TMPL,
+    SUMMARY_QUERY,
 )
 
-# from llama_index.indices.list.base import ListRetrieverMode
+# enable asynchronous processing
+nest_asyncio.apply()
 
 
 def get_service_context() -> ServiceContext:
@@ -156,10 +160,19 @@ def construct_index():
         logging.info("storage context not found. Add nodes to docstore")
         storage_context = StorageContext.from_defaults()
 
+        # define response_synthesizer
+
         # construct list_index and vector_index from storage_context.
-        summary_index = SummaryIndex.from_documents(
+        summary_index = DocumentSummaryIndex.from_documents(
             documents,
             storage_context=storage_context,
+            response_synthesizer=get_response_synthesizer(
+                response_mode="tree_summarize",
+                use_async=True,
+                text_qa_template=CHAT_TEXT_QA_PROMPT,  # QAプロンプト
+                summary_template=CHAT_TREE_SUMMARIZE_PROMPT,  # TreeSummarizeプロンプト
+            ),
+            summary_query=SUMMARY_QUERY,
         )
 
         vector_index = VectorStoreIndex.from_documents(
@@ -179,13 +192,14 @@ def construct_index():
 
     # define list_query_engine and vector_query_engine
     list_query_engine = summary_index.as_query_engine(
+        choice_select_prompt=DEFAULT_CHOICE_SELECT_PROMPT,  # ChoiceSelectプロンプト
         response_synthesizer=get_response_synthesizer(
             response_mode="tree_summarize",
             use_async=True,
-            text_qa_template=CHAT_TEXT_QA_PROMPT,
-            summary_template=CHAT_TREE_SUMMARIZE_PROMPT,
+            summary_template=CHAT_TREE_SUMMARIZE_PROMPT,  # TreeSummarizeプロンプト
         ),
     )
+
     vector_query_engine = vector_index.as_query_engine(
         similarity_top_k=5,
         response_synthesizer=get_response_synthesizer(

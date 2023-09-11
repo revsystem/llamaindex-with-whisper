@@ -13,10 +13,15 @@ from llama_index.response.schema import RESPONSE_TYPE
 from pydub import AudioSegment
 
 from constants import DEFAULT_TARGET_FILE_SIZE, FOLDERPATH_DOCUMENTS
-from construct_index import load_variables, query_with_index, save_variables
+from construct_index import load_variables, query_with_index
 
 # logging.disable()
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True)
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.DEBUG,
+    force=True,
+    encoding="utf-8",
+)
 logging.getLogger().handlers = []
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 

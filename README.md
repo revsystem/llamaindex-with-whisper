@@ -104,6 +104,7 @@ export OPENAI_API_KEY= 'YOUR_OPENAI_API_KEY'
 - [Router Query Engine](https://gpt-index.readthedocs.io/en/latest/examples/query_engine/RouterQueryEngine.html)
 - [Experimenting LlamaIndex RouterQueryEngine with Document Management](https://betterprogramming.pub/experimenting-llamaindex-routerqueryengine-with-document-management-19b17f2e3a32)
 - [LlamaIndex の RouterQueryEngine を試す](https://note.com/npaka/n/n0a068497ac96)
+- [LlamaIndex の DocumentSummaryIndex を試す](https://note.com/npaka/n/n78a1184706d7)
 
 ## Licensing
 

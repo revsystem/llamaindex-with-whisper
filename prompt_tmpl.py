@@ -1,5 +1,6 @@
 from llama_index.llms.base import ChatMessage, MessageRole
-from llama_index.prompts.base import ChatPromptTemplate
+from llama_index.prompts.base import ChatPromptTemplate, PromptTemplate
+from llama_index.prompts.prompt_type import PromptType
 
 # QAシステムプロンプト
 TEXT_QA_SYSTEM_PROMPT = ChatMessage(
@@ -66,4 +67,34 @@ CHAT_TEXT_QA_PROMPT = ChatPromptTemplate(message_templates=TEXT_QA_PROMPT_TMPL_M
 # TreeSummarizeプロンプト
 CHAT_TREE_SUMMARIZE_PROMPT = ChatPromptTemplate(
     message_templates=TREE_SUMMARIZE_PROMPT_TMPL_MSGS
+)
+
+# Summaryクエリ
+SUMMARY_QUERY = "提供されたテキストの内容を要約してください。"
+
+# ChoiceSelectプロンプトテンプレート
+DEFAULT_CHOICE_SELECT_PROMPT_TMPL = (
+    "書類の一覧を以下に示します。各文書の横には文書の要約とともに番号が付いています。"
+    "質問に答えるために参照する必要がある文書の番号を、関連性の高い順に答えてください。"
+    "関連性スコアは、文書が質問に対してどの程度関連していると思われるかに基づいて1～10の数値で表します。\n\n"
+    "必ず以下の書式で記述してください。"
+    "それ以外の文章は絶対に記述しないでください。\n\n"
+    "Document 1:\n<summary of document 1>\n\n"
+    "Document 2:\n<summary of document 2>\n\n"
+    "...\n\n"
+    "Document 10:\n<summary of document 10>\n\n"
+    "Question: <question>\n"
+    "Answer:\n"
+    "Doc: 9, Relevance: 7\n"
+    "Doc: 3, Relevance: 4\n"
+    "Doc: 7, Relevance: 3\n\n"
+    "では、はじめましょう。\n\n"
+    "{context_str}\n"
+    "Question: {query_str}\n"
+    "Answer:\n"
+)
+
+# ChoiceSelectプロンプト
+DEFAULT_CHOICE_SELECT_PROMPT = PromptTemplate(
+    DEFAULT_CHOICE_SELECT_PROMPT_TMPL, prompt_type=PromptType.CHOICE_SELECT
 )
