@@ -1,7 +1,9 @@
 import logging
 import os
+from typing import Callable, List
 
 import nest_asyncio
+import nltk
 import tiktoken
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
@@ -19,10 +21,11 @@ from llama_index import (
 from llama_index.callbacks import CallbackManager, LlamaDebugHandler
 from llama_index.indices.document_summary import DocumentSummaryIndex
 from llama_index.indices.loading import load_index_from_storage
+from llama_index.indices.postprocessor import MetadataReplacementPostProcessor
 
 # from llama_index.llms import OpenAI
 from llama_index.logger.base import LlamaLogger
-from llama_index.node_parser import SimpleNodeParser
+from llama_index.node_parser import SentenceWindowNodeParser, SimpleNodeParser
 
 # from llama_index.prompts import Prompt
 from llama_index.query_engine.router_query_engine import RouterQueryEngine
@@ -31,6 +34,7 @@ from llama_index.query_engine.router_query_engine import RouterQueryEngine
 from llama_index.selectors.pydantic_selectors import PydanticSingleSelector
 from llama_index.text_splitter import TokenTextSplitter
 from llama_index.tools.query_engine import QueryEngineTool
+from llama_index.utils import get_cache_dir
 
 from constants import FILEPATH_CACHE_INDEX, FOLDERPATH_DOCUMENTS, VARIABLES_FILE
 from prompt_tmpl import (
@@ -43,6 +47,19 @@ from prompt_tmpl import (
 
 # enable asynchronous processing
 nest_asyncio.apply()
+
+
+# Tokenizer for Japanese
+def split_by_sentence_tokenizer() -> Callable[[str], List[str]]:
+    cache_dir = get_cache_dir()
+    nltk_data_dir = os.environ.get("NLTK_DATA", cache_dir)
+
+    # update nltk path for nltk so that it finds the data
+    if nltk_data_dir not in nltk.data.path:
+        nltk.data.path.append(nltk_data_dir)
+
+    sent_detector = nltk.RegexpTokenizer("[^　！？。]*[！？。.\n]")
+    return sent_detector.tokenize
 
 
 def get_service_context() -> ServiceContext:
@@ -69,16 +86,22 @@ def get_service_context() -> ServiceContext:
     llm_predictor = LLMPredictor(llm=llm)
 
     # Customize behavior of splitting into chunks
-    text_splitter = TokenTextSplitter(
-        separator=" ",
-        chunk_size=256,
-        chunk_overlap=20,
-        backup_separators=["\n\n", "\n", "。", "。 ", "、", "、 "],
-        tokenizer=tiktoken.encoding_for_model("gpt-3.5-turbo").encode,
-    )
+    # text_splitter = TokenTextSplitter(
+    #     separator=" ",
+    #     chunk_size=256,
+    #     chunk_overlap=20,
+    #     backup_separators=["\n\n", "\n", "。", "。 ", "、", "、 "],
+    #     tokenizer=tiktoken.encoding_for_model("gpt-3.5-turbo").encode,
+    # )
 
     # Split text into chunks and create nodes
-    node_parser = SimpleNodeParser.from_defaults(text_splitter=text_splitter)
+    # node_parser = SimpleNodeParser.from_defaults(text_splitter=text_splitter)
+    node_parser = SentenceWindowNodeParser.from_defaults(
+        sentence_splitter=split_by_sentence_tokenizer(),
+        window_size=3,
+        window_metadata_key="window",
+        original_text_metadata_key="original_text",
+    )
 
     # Customize Embedded Models
     embed_model = LangchainEmbedding(
@@ -206,6 +229,10 @@ def construct_index():
             response_mode="compact",
             text_qa_template=CHAT_TEXT_QA_PROMPT,
         ),
+        node_processors=[
+            MetadataReplacementPostProcessor(target_metadata_key="window")
+        ],
+        text_qa_prompt=CHAT_TEXT_QA_PROMPT,
     )
 
     # build list_tool and vector_tool
